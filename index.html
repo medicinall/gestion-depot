@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Dépôts</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div id="notifications"></div>
+
+    <!-- Main Application -->
+    <div id="main-app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-box"></i> Gestion Dépôts</h2>
+                <div class="app-info">
+                    Système de gestion simple et efficace
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" data-tab="dashboard">
+                    <i class="fas fa-tachometer-alt"></i> Tableau de bord
+                </li>
+                <li class="nav-item" data-tab="depots">
+                    <i class="fas fa-box"></i> Dépôts
+                </li>
+                <li class="nav-item" data-tab="clients">
+                    <i class="fas fa-users"></i> Clients
+                </li>
+                <li class="nav-item" data-tab="archives">
+                    <i class="fas fa-archive"></i> Archives
+                </li>
+                <li class="nav-item" data-tab="statuts">
+                    <i class="fas fa-tags"></i> Statuts
+                </li>
+                <li class="nav-item" data-tab="admin">
+                    <i class="fas fa-cog"></i> Administration
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <button class="refresh-btn" onclick="refreshData()" title="Actualiser les données">
+                    <i class="fas fa-sync-alt"></i> Actualiser
+                </button>
+                <div style="margin-top: 1rem;">
+                    Version 1.0
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard-tab" class="tab-content active">
+                <h1>Tableau de bord</h1>
+                
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <h3>Total Dépôts</h3>
+                        <div class="stat-number" id="total-depots">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Clients</h3>
+                        <div class="stat-number" id="total-clients">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Dépôts Terminés</h3>
+                        <div class="stat-number" id="depots-termines">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>En Attente</h3>
+                        <div class="stat-number" id="depots-en-attente">0</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="color-legend">
+                        <h3>Légende des statuts</h3>
+                        <div id="color-legend">
+                            <p class="text-muted">Chargement...</p>
+                        </div>
+                    </div>
+
+                    <div class="color-legend">
+                        <h3>Activité récente</h3>
+                        <div id="recent-activity">
+                            <p class="text-muted">Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Depots Tab -->
+            <div id="depots-tab" class="tab-content">
+                <h1>Gestion des Dépôts</h1>
+
+                <!-- Create Depot Form -->
+                <div class="form-container">
+                    <h3>Créer un nouveau dépôt</h3>
+                    <form id="create-depot-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="depot-client">Client:</label>
+                                <select name="client_id" id="depot-client" required>
+                                    <option value="">Sélectionner un client</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="depot-status">Statut:</label>
+                                <select name="status_id" id="depot-status" required>
+                                    <option value="">Sélectionner un statut</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="depot-date">Date de dépôt:</label>
+                                <input type="date" name="date_depot" id="depot-date">
+                            </div>
+                            <div class="form-group">
+                                <label for="depot-date-prevue">Date prévue:</label>
+                                <input type="date" name="date_prevue" id="depot-date-prevue">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="depot-description">Description:</label>
+                            <textarea name="description" id="depot-description" rows="3" placeholder="Réparation écran iPhone 12" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="depot-designation">Désignation/Références:</label>
+                                <textarea name="designation_references" id="depot-designation" rows="2" placeholder="iPhone 12 - Écran cassé"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="depot-observation">Observation/Travaux à effectuer:</label>
+                                <textarea name="observation_travaux" id="depot-observation" rows="2" placeholder="Remplacement écran + protection"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="depot-donnees">Données à sauvegarder:</label>
+                                <select name="donnees_sauvegarder" id="depot-donnees">
+                                    <option value="Non">Non</option>
+                                    <option value="Oui">Oui</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="depot-outlook">Outlook à sauvegarder:</label>
+                                <select name="outlook_sauvegarder" id="depot-outlook">
+                                    <option value="Non">Non</option>
+                                    <option value="Oui">Oui</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="depot-mot-passe">Mot de passe:</label>
+                            <input type="text" name="mot_de_passe" id="depot-mot-passe" placeholder="Mot de passe si nécessaire">
+                        </div>
+                        <div class="form-group">
+                            <label for="depot-notes">Notes internes:</label>
+                            <textarea name="notes" id="depot-notes" rows="3" placeholder="Notes internes..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="depot-infos">Informations complémentaires:</label>
+                            <textarea name="informations_complementaires" id="depot-infos" rows="2" placeholder="Informations supplémentaires"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Créer le dépôt
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Depots Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Liste des dépôts</h3>
+                        <div>
+                            <button class="btn btn-success btn-sm" onclick="refreshData()">
+                                <i class="fas fa-sync-alt"></i> Actualiser
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <div class="table-controls">
+                            <input type="text" id="depot-search" class="search-box" placeholder="Rechercher...">
+                            <select id="client-filter">
+                                <option value="">Tous les clients</option>
+                            </select>
+                            <select id="status-filter">
+                                <option value="">Tous les statuts</option>
+                            </select>
+                        </div>
+                        <table id="depots-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th>Statut</th>
+                                    <th>Date dépôt</th>
+                                    <th>Date prévue</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depots-tbody">
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Clients Tab -->
+            <div id="clients-tab" class="tab-content">
+                <h1>Gestion des Clients</h1>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Liste des clients</h3>
+                        <div>
+                            <button class="btn btn-success btn-sm" onclick="refreshClients()" title="Actualiser">
+                                <i class="fas fa-sync-alt"></i> Actualiser
+                            </button>
+                            <button class="btn btn-primary" onclick="showCreateClientModal()">
+                                <i class="fas fa-plus"></i> Nouveau client
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <div class="table-controls">
+                            <input type="text" id="client-search" class="search-box" placeholder="Rechercher un client...">
+                        </div>
+                        <table id="clients-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Prénom</th>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Téléphone</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Archives Tab -->
+            <div id="archives-tab" class="tab-content">
+                <h1>Archives</h1>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Dépôts archivés</h3>
+                        <div>
+                            <button class="btn btn-warning btn-sm" onclick="alert('Fonction en développement')">
+                                <i class="fas fa-broom"></i> Nettoyer
+                            </button>
+                        </div>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <div class="table-controls">
+                            <input type="text" id="archive-search" class="search-box" placeholder="Rechercher dans les archives...">
+                            <select id="archive-client-filter">
+                                <option value="">Tous les clients</option>
+                            </select>
+                        </div>
+                        <table id="archives-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client</th>
+                                    <th>Description</th>
+                                    <th>Date dépôt</th>
+                                    <th>Date archivage</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="archives-tbody">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statuts Tab -->
+            <div id="statuts-tab" class="tab-content">
+                <h1>Gestion des Statuts</h1>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3>Liste des statuts</h3>
+                        <button class="btn btn-primary" onclick="showCreateStatutModal()">
+                            <i class="fas fa-plus"></i> Nouveau statut
+                        </button>
+                    </div>
+                    <div style="padding: 1rem;">
+                        <table id="statuts-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Couleur</th>
+                                    <th>Action</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statuts-tbody">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted">Chargement...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Tab -->
+            <div id="admin-tab" class="tab-content">
+                <h1>Administration</h1>
+
+                <div class="dashboard-stats" id="admin-stats">
+                    <div class="stat-card">
+                        <h3>Total Dépôts</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Clients</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Statuts</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Archives</h3>
+                        <div class="stat-number">0</div>
+                    </div>
+                </div>
+
+                <div class="form-container">
+                    <h3>Actions administratives</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;">
+                        <button class="btn btn-warning" onclick="alert('Fonction en développement')">
+                            <i class="fas fa-download"></i> Exporter les données
+                        </button>
+                        <button class="btn btn-success" onclick="alert('Fonction en développement')">
+                            <i class="fas fa-upload"></i> Importer des données
+                        </button>
+                        <button class="btn btn-danger" onclick="alert('Fonction en développement')">
+                            <i class="fas fa-trash-alt"></i> Nettoyer les données
+                        </button>
+                        <button class="btn btn-secondary" onclick="alert('Fonction en développement')">
+                            <i class="fas fa-redo"></i> Réinitialiser
+                        </button>
+                    </div>
+
+                    <div class="color-legend">
+                        <h3>Informations système</h3>
+                        <div style="padding: 1rem 0;">
+                            <div style="margin-bottom: 0.5rem;"><strong>Version:</strong> 1.0.0</div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Dernière sauvegarde:</strong> <span id="last-backup">Jamais</span></div>
+                            <div style="margin-bottom: 0.5rem;"><strong>Statut:</strong> <span style="color: var(--success-color, #28a745);">Opérationnel</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal-overlay" class="hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Titre</h3>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                Contenu...
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Client -->
+    <div id="client-modal-overlay" class="hidden">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="client-modal-title">Nouveau Client</h3>
+                <button class="modal-close" onclick="closeClientModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="client-form">
+                    <input type="hidden" id="client-id" name="id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="client-prenom">Prénom *:</label>
+                            <input type="text" id="client-prenom" name="prenom" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="client-nom">Nom *:</label>
+                            <input type="text" id="client-nom" name="nom" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="client-email">Email:</label>
+                            <input type="email" id="client-email" name="email">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-telephone">Téléphone:</label>
+                            <input type="tel" id="client-telephone" name="telephone">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client-adresse">Adresse:</label>
+                        <input type="text" id="client-adresse" name="adresse" placeholder="123 rue de la Paix">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="client-code-postal">Code postal:</label>
+                            <input type="text" id="client-code-postal" name="code_postal" placeholder="76000">
+                        </div>
+                        <div class="form-group">
+                            <label for="client-ville">Ville:</label>
+                            <input type="text" id="client-ville" name="ville" placeholder="Rouen">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Annuler</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> <span id="client-submit-text">Créer</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="api_mysql.js"></script>
+    <script src="app_fixed.js"></script>
+    <script src="depot-functions.js"></script>
+    <script src="client-functions.js"></script>
+    <script>
+        // Fonctions placeholder pour éviter les erreurs
+        function showCreateStatutModal() {
+            alert('Fonction en développement : Création de statut');
+        }
+
+        function showModal(title, content) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').innerHTML = content;
+            document.getElementById('modal-overlay').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notificationsContainer = document.getElementById('notifications');
+            
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${getNotificationIcon(type)}"></i>
+                    <span>${message}</span>
+                </div>
+                <button class="notification-close" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            notificationsContainer.appendChild(notification);
+            
+            // Suppression automatique après 5 secondes
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 5000);
+        }
+
+        function getNotificationIcon(type) {
+            switch (type) {
+                case 'success': return 'check-circle';
+                case 'error': return 'exclamation-circle';
+                case 'warning': return 'exclamation-triangle';
+                default: return 'info-circle';
+            }
+        }
+
+        // Fermeture de la modale en cliquant sur l'overlay
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'modal-overlay') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
